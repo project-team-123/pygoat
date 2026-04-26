@@ -21,8 +21,8 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         with:
           args: >
-            -Dsonar.projectKey=project-team-123_pygoat
-            -Dsonar.organization=project-team-123
+            -Dsonar.projectKey=ci-cd2
+            -Dsonar.organization=ci/cd2
 
   dast_scan:
     name: OWASP ZAP DAST

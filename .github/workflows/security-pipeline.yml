@@ -1,0 +1,50 @@
+name: DevSecOps Pipeline
+
+on:
+  push:
+    branches: [ "master", "main" ]
+
+jobs:
+  # ==========================================
+  # FRIEND'S JOB: SAST SCAN (SonarCloud)
+  # ==========================================
+  sast_scan:
+    name: SonarQube SAST
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0  
+      
+      - name: SonarCloud Scan
+        uses: SonarSource/sonarcloud-github-action@master
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+
+  # ==========================================
+  # YOUR JOB: DAST SCAN (OWASP ZAP)
+  # ==========================================
+  dast_scan:
+    name: OWASP ZAP DAST
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+      
+      - name: Build and Run PyGoat App
+        run: |
+          docker-compose up -d
+          # Give the app 15 seconds to fully start before attacking
+          sleep 15 
+
+      - name: OWASP ZAP Baseline Scan
+        uses: zaproxy/action-baseline@v0.12.0
+        with:
+          target: 'http://localhost:8000'
+          rules_file_name: '.zap/rules.tsv'
+          cmd_options: '-a'
+          # Prevent the pipeline from failing just because it found bugs
+          fail_action: false 

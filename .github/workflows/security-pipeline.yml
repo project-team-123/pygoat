@@ -1,9 +1,8 @@
 name: DevSecOps Pipeline
-
 on:
   push:
     branches: [ "master", "main" ]
-
+  workflow_dispatch:  # <--- Add this line!
 jobs:
   sast_scan:
     name: SonarQube SAST
